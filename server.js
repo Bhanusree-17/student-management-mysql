@@ -294,7 +294,7 @@ app.post('/api/students', auth, async (req, res) => {
   try {
     const {
       name,
-      roll_number,
+      rollnumber,
       email,
       phone,
       department,
@@ -303,7 +303,7 @@ app.post('/api/students', auth, async (req, res) => {
       section
     } = req.body;
 
-    if (!name || !roll_number || !email) {
+    if (!name || !rollnumber || !email) {
       return res.status(400).json({
         message: 'Name, roll number and email required.'
       });
@@ -345,7 +345,7 @@ app.put('/api/students/:id', auth, async (req, res) => {
       section
     } = req.body;
 
-    if (!name || !roll_number || !email) {
+    if (!name || !rollnumber || !email) {
       return res.status(400).json({
         message: 'Name, roll number and email required.'
       });
@@ -354,7 +354,7 @@ app.put('/api/students/:id', auth, async (req, res) => {
     const [result] = await pool.query(
       `UPDATE students
        SET name = ?,
-           roll_number = ?,
+           rollnumber = ?,
            email = ?,
            phone = ?,
            department = ?,
@@ -364,7 +364,7 @@ app.put('/api/students/:id', auth, async (req, res) => {
        WHERE id = ?`,
       [
         name,
-        roll_number,
+        rollnumber,
         email,
         phone || null,
         department || null,
