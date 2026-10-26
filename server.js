@@ -10,6 +10,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Render HTTPS proxy support
+app.set('trust proxy', 1);
+
+// MySQL connection
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT || 3306),
@@ -20,6 +24,7 @@ const pool = mysql.createPool({
   connectionLimit: 10
 });
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,10 +35,12 @@ app.use(session({
   cookie: {
     httpOnly: true,
     maxAge: 86400000,
-    secure: process.env.NODE_ENV === 'production'
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
   }
 }));
 
+// Serve frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Homepage
@@ -182,10 +189,28 @@ app.post('/api/login', async (req, res) => {
       });
     }
 
-    req.session.adminId = rows[0].id;
+    req.session.regenerate(error => {
+      if (error) {
+        console.error('Session regenerate error:', error);
+        return res.status(500).json({
+          message: 'Could not create login session.'
+        });
+      }
 
-    res.json({
-      message: 'Login successful.'
+      req.session.adminId = rows[0].id;
+
+      req.session.save(error => {
+        if (error) {
+          console.error('Session save error:', error);
+          return res.status(500).json({
+            message: 'Could not save login session.'
+          });
+        }
+
+        res.json({
+          message: 'Login successful.'
+        });
+      });
     });
 
   } catch (error) {
