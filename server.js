@@ -55,6 +55,7 @@ function auth(req, res, next) {
       message: 'Please login first.'
     });
   }
+
   next();
 }
 
@@ -192,6 +193,7 @@ app.post('/api/login', async (req, res) => {
     req.session.regenerate(error => {
       if (error) {
         console.error('Session regenerate error:', error);
+
         return res.status(500).json({
           message: 'Could not create login session.'
         });
@@ -202,6 +204,7 @@ app.post('/api/login', async (req, res) => {
       req.session.save(error => {
         if (error) {
           console.error('Session save error:', error);
+
           return res.status(500).json({
             message: 'Could not save login session.'
           });
@@ -309,12 +312,22 @@ app.post('/api/students', auth, async (req, res) => {
       });
     }
 
-    const [result] = await db.query(
-  `INSERT INTO students
-      (name, rollNumber, email, phone, department, year, gender, section)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-  [name, rollNumber, email, phone, department, year, gender, section]
-);
+    const [result] = await pool.query(
+      `INSERT INTO students
+       (name, rollnumber, email, phone, department, year, gender, section)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        name,
+        rollnumber,
+        email,
+        phone || null,
+        department || null,
+        year || null,
+        gender || null,
+        section || null
+      ]
+    );
+
     res.status(201).json({
       message: 'Student added successfully.',
       id: result.insertId
