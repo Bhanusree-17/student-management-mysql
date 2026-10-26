@@ -309,22 +309,12 @@ app.post('/api/students', auth, async (req, res) => {
       });
     }
 
-    const [result] = await pool.query(
-      `INSERT INTO students
-      (name, roll_number, email, phone, department, year, gender, section)
+    const [result] = await db.query(
+  `INSERT INTO students
+      (name, rollNumber, email, phone, department, year, gender, section)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        name,
-        roll_number,
-        email,
-        phone || null,
-        department || null,
-        year || null,
-        gender || null,
-        section || null
-      ]
-    );
-
+  [name, rollNumber, email, phone, department, year, gender, section]
+);
     res.status(201).json({
       message: 'Student added successfully.',
       id: result.insertId
