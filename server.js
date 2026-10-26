@@ -10,10 +10,8 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Render HTTPS proxy support
 app.set('trust proxy', 1);
 
-// MySQL connection
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',
   port: Number(process.env.DB_PORT || 3306),
@@ -24,7 +22,6 @@ const pool = mysql.createPool({
   connectionLimit: 10
 });
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -40,15 +37,12 @@ app.use(session({
   }
 }));
 
-// Serve frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Homepage
 app.get('/', (req, res) => {
   res.redirect('/login.html');
 });
 
-// Authentication
 function auth(req, res, next) {
   if (!req.session.adminId) {
     return res.status(401).json({
@@ -317,9 +311,9 @@ app.post('/api/students', auth, async (req, res) => {
        (name, rollnumber, email, phone, department, year, gender, section)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        name,
-        rollnumber,
-        email,
+        name.trim(),
+        rollnumber.trim(),
+        email.trim(),
         phone || null,
         department || null,
         year || null,
@@ -376,9 +370,9 @@ app.put('/api/students/:id', auth, async (req, res) => {
            section = ?
        WHERE id = ?`,
       [
-        name,
-        rollnumber,
-        email,
+        name.trim(),
+        rollnumber.trim(),
+        email.trim(),
         phone || null,
         department || null,
         year || null,
