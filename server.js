@@ -336,7 +336,7 @@ app.put('/api/students/:id', auth, async (req, res) => {
   try {
     const {
       name,
-      roll_number,
+      rollnumber,
       email,
       phone,
       department,
