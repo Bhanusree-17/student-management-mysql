@@ -1,0 +1,288 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Student Management</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #7048e8, #b69cff);
+    }
+
+    .login-box {
+      background: white;
+      width: 400px;
+      max-width: 90%;
+      padding: 35px;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    h2 {
+      text-align: center;
+      color: #7048e8;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 18px;
+      border: 1px solid #ddd;
+      border-radius: 7px;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #7048e8;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #5b35cf;
+    }
+
+    .switch {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .switch a {
+      color: #7048e8;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 15px;
+      color: #d00000;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-box">
+
+    <h2 id="heading">Student Management Login</h2>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+
+      <label>Email</label>
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="Enter your email"
+        required
+      >
+
+      <label>Password</label>
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="Enter your password"
+        required
+      >
+
+      <button type="submit">Login</button>
+
+      <p class="switch">
+        Don't have an account?
+        <a id="showSignup">Sign Up</a>
+      </p>
+
+    </form>
+
+    <!-- SIGN UP FORM -->
+    <form id="signupForm" class="hidden">
+
+      <label>Email</label>
+      <input
+        type="email"
+        id="signupEmail"
+        placeholder="Enter your email"
+        required
+      >
+
+      <label>Password</label>
+      <input
+        type="password"
+        id="signupPassword"
+        placeholder="Create password (minimum 8 characters)"
+        minlength="8"
+        required
+      >
+
+      <label>Confirm Password</label>
+      <input
+        type="password"
+        id="confirmPassword"
+        placeholder="Confirm your password"
+        minlength="8"
+        required
+      >
+
+      <button type="submit">Create Account</button>
+
+      <p class="switch">
+        Already have an account?
+        <a id="showLogin">Login</a>
+      </p>
+
+    </form>
+
+    <p id="message"></p>
+
+  </div>
+
+  <script>
+
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+    const heading = document.getElementById("heading");
+    const message = document.getElementById("message");
+
+    // Show signup form
+    document.getElementById("showSignup").addEventListener("click", function() {
+      loginForm.classList.add("hidden");
+      signupForm.classList.remove("hidden");
+
+      heading.textContent = "Create Account";
+      message.textContent = "";
+    });
+
+    // Show login form
+    document.getElementById("showLogin").addEventListener("click", function() {
+      signupForm.classList.add("hidden");
+      loginForm.classList.remove("hidden");
+
+      heading.textContent = "Student Management Login";
+      message.textContent = "";
+    });
+
+    // LOGIN
+    loginForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      message.style.color = "red";
+      message.textContent = "Logging in...";
+
+      try {
+        const response = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email,
+            password
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          window.location.href = "/students.html";
+        } else {
+          message.textContent = result.message || "Login failed.";
+        }
+
+      } catch (error) {
+        message.textContent = "Cannot connect to server.";
+      }
+    });
+
+    // SIGNUP
+    signupForm.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (password !== confirmPassword) {
+        message.style.color = "red";
+        message.textContent = "Passwords do not match.";
+        return;
+      }
+
+      message.style.color = "red";
+      message.textContent = "Creating account...";
+
+      try {
+        const response = await fetch("/api/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email,
+            password
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          message.style.color = "green";
+          message.textContent = result.message;
+
+          signupForm.reset();
+
+          setTimeout(function() {
+            signupForm.classList.add("hidden");
+            loginForm.classList.remove("hidden");
+
+            heading.textContent = "Student Management Login";
+          }, 1500);
+
+        } else {
+          message.style.color = "red";
+          message.textContent = result.message || "Signup failed.";
+        }
+
+      } catch (error) {
+        message.style.color = "red";
+        message.textContent = "Cannot connect to server.";
+      }
+    });
+
+  </script>
+
+</body>
+</html>
