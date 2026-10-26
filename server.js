@@ -72,7 +72,7 @@ async function init() {
     CREATE TABLE IF NOT EXISTS students (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
-      roll_number VARCHAR(30) NOT NULL UNIQUE,
+      rollnumber VARCHAR(30) NOT NULL UNIQUE,
       email VARCHAR(150) NOT NULL,
       phone VARCHAR(20),
       department VARCHAR(100),
